@@ -1,0 +1,3 @@
+use_rad_lim: True
+wheel_distance: 0.092   #wheel_distance changed from 0.103 to 0.092, RFMH_2019_02_26
+servo_duty_limit: 42    #geometric limit for the servo --> used to shift angle for duty cycle usage

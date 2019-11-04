@@ -4,4 +4,8 @@ set -e
 
 # YOUR CODE BELOW THIS LINE
 # ----------------------------------------------------------------------------
-echo "This is an empty launch script. Update it to launch your application."
+
+echo "Starting pigpiod."
+pigpiod
+
+roslaunch duckiebot_interface_dbv2 all_drivers.launch veh:=$VEHICLE_NAME robot_type:=$ROBOT_TYPE

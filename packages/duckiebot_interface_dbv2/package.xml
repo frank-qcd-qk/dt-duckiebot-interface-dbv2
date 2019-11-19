@@ -5,7 +5,7 @@
   <description>The duckiebot_interface meta package</description>
 
   <license>GPLv3</license>
-<maintainer email="mack@duckietown.org">Mack</maintainer>
+<maintainer email="scottti@student.ethz.ch">Timothy Scott</maintainer>
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rospy</build_depend>

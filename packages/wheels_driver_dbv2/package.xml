@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>wheels_driver_dbv2</name>
+  <version>1.0.0</version>
+  <description>A interface between our WheelsCmd messagese and the adafruit driver</description>
+
+   <author email="info@duckietown.org">Mack</author>
+  
+  <maintainer email="mack@duckietown.org">Mack</maintainer>
+  <license>GPLv3</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>duckietown_msgs</depend>
+  <depend>rospy</depend>
+  <depend>adafruit_drivers</depend>
+
+</package>

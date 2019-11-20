@@ -1,0 +1,10 @@
+<launch>
+    <arg name="veh" doc="Name of vehicle. ex: megaman"/>
+    <arg name="node_name" default="wheels_driver_node"/>
+    <arg name="param_file_name" default="default" doc="Specify a param file. ex:megaman." />
+
+    <node ns="$(arg veh)"  pkg="wheels_driver_dbv2" type="$(arg node_name).py" name="$(arg node_name)" output="screen" required="true">
+        <rosparam command="load" file="$(find wheels_driver_dbv2)/config/$(arg node_name)/$(arg param_file_name).yaml"/>
+    </node>
+
+</launch>

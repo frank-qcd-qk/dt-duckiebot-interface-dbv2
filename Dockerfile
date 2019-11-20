@@ -1,12 +1,12 @@
 # parameters
-ARG REPO_NAME="<REPO_NAME_HERE>"
+ARG REPO_NAME="dt-duckiebot-interface-dbv2"
 
 # ==================================================>
 # ==> Do not change this code
 ARG ARCH=arm32v7
 ARG MAJOR=daffy
 ARG BASE_TAG=${MAJOR}-${ARCH}
-ARG BASE_IMAGE=dt-ros-commons
+ARG BASE_IMAGE=dt-duckiebot-interface
 
 # define base image
 FROM duckietown/${BASE_IMAGE}:${BASE_TAG}
@@ -25,6 +25,16 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     $(awk -F: '/^[^#]/ { print $1 }' dependencies-apt.txt | uniq) \
   && rm -rf /var/lib/apt/lists/*
+
+#added pigpio library setup here
+WORKDIR /home/software/pigpio
+RUN wget abyz.me.uk/rpi/pigpio/pigpio.tar \
+    && tar xf pigpio.tar \
+    && cd PIGPIO \
+    && make \
+    && make install
+
+WORKDIR "${REPO_PATH}"
 
 # install python dependencies
 COPY ./dependencies-py.txt "${REPO_PATH}/"
@@ -61,4 +71,4 @@ LABEL org.duckietown.label.base.image "${BASE_IMAGE}:${BASE_TAG}"
 # <==================================================
 
 # maintainer
-LABEL maintainer="<YOUR_FULL_NAME> (<YOUR_EMAIL_ADDRESS>)"
+LABEL maintainer="Timothy Scott (scottti@student.ethz.ch)"

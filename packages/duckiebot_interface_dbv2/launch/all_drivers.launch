@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="veh" doc="Name of vehicle. ex: megaman"/>
+    <arg name="param_file_name" default="default" doc="Specify a param file. ex:default." />
+    <arg name="robot_type" default="duckiebot" doc="The type of the robot: should be duckiebot, watchtower, or traffic_light"/>
+
+    <!-- Camera Node: reads frames from a physical camera and produces ROS messages -->
+    <include file="$(find camera_driver)/launch/camera_node.launch">
+        <arg name="veh" value="$(arg veh)"/>
+        <arg name="param_file_name" value="$(arg robot_type)"/>
+    </include>
+
+    <!-- LED Emitter: reads ROS messages and commands the LEDs -->
+    <include file="$(find led_emitter)/launch/led_emitter_node.launch">
+        <arg name="veh" value="$(arg veh)"/>
+        <arg name="robot_type" value="$(arg robot_type)"/>
+    </include>
+
+
+    <!-- Joystick: reads from a physical joystick and produces ROS messages -->
+    <group if="$(eval arg('robot_type') == 'duckiebot')">
+        <include file="$(find joystick)/launch/joystick_node.launch">
+            <arg name="veh" value="$(arg veh)"/>
+            <arg name="param_file_name" value="$(arg param_file_name)"/>
+        </include>
+
+        <!-- Wheel Drivers: reads ROS messages and spins the motors -->
+        <include file="$(find wheels_driver_dbv2)/launch/wheels_driver_node.launch">
+            <arg name="veh" value="$(arg veh)"/>
+            <arg name="param_file_name" value="$(arg param_file_name)"/>
+        </include>
+
+   </group>
+
+</launch>

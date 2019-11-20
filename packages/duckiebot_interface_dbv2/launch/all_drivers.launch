@@ -32,11 +32,4 @@
 
    </group>
 
-    <!-- Traffic Light (Traffic Light robot only): commands the LEDs of a traffic light -->
-    <remap from="led_emitter_node/custom_pattern" to="~custom_pattern"/>
-    <include file="$(find traffic_light)/launch/traffic_light_node.launch">
-        <arg name="veh" value="$(arg veh)"/>
-    </include>
-
-
 </launch>

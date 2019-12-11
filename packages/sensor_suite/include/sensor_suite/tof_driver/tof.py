@@ -235,17 +235,16 @@ class ToF():
         resultRegister = self.MyBus.read_word_data(self.addr, self.RFD77402_RESULT)
         if (resultRegister & ~0x7FFF):
             errorCode = (resultRegister >> 13) & 0x03
-            if (errorCode == 0):
-                distance = (resultRegister >> 2) & 0x07FF  # Distance is good. Read it.
-                # Read confidence register
-                confidenceRegister = self.MyBus.read_word_data(self.addr, self.RFD77402_RESULT_CONFIDENCE)
-                validPixels = confidenceRegister & 0x0F
-                confidenceValue = (confidenceRegister >> 4) & 0x07FF
-                return distance, validPixels, confidenceValue
-            return errorCode
+            distance = (resultRegister >> 2) & 0x07FF  # Distance is good. Read it.
+            # Read confidence register
+            confidenceRegister = self.MyBus.read_word_data(self.addr, self.RFD77402_RESULT_CONFIDENCE)
+            validPixels = confidenceRegister & 0x0F
+            confidenceValue = (confidenceRegister >> 4) & 0x07FF
+            return errorCode, distance, validPixels, confidenceValue
+
         else:
             # reading is not valide
-            return (self.CODE_FAILED_NOT_NEW)
+            return 0x03, 0, 0, 0
 
     def getCalibrationData(self):
         """Retreive 2*27 bytes from MCPU for computation of calibration parameters

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from duckietown import DTROS
 from sensor_suite.line_following_sensor import LineFollower
+from sensor_suite import SensorNotFound
 from duckietown_msgs.msg import LineFollowerStamped
 from std_msgs.msg import Float32
 import rospy
@@ -15,7 +16,8 @@ class LineFollowingNode(DTROS):
 
         _, valid = self.line_follower.read()
         if not valid:
-            raise Exception('ADC readings for line following sensors are not all valid')
+            raise SensorNotFound('Line following sensors not found. Error code: {:08b}'
+                                 .format(self.line_follower.diagnostics()))
 
         self.pub = rospy.Publisher("~line_follower", LineFollowerStamped, queue_size=10)
         self.timer = rospy.Timer(rospy.Duration.from_sec(0.1), self.publish_line_readings)
@@ -33,5 +35,8 @@ class LineFollowingNode(DTROS):
 
 
 if __name__ == "__main__":
-    node = LineFollowingNode( )
-    rospy.spin()
+    try:
+        node = LineFollowingNode()
+        rospy.spin()
+    except SensorNotFound as e:
+        print(e)

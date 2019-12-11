@@ -62,3 +62,6 @@ if __name__ == "__main__":
         rospy.spin()
     except SensorNotFound as e:
         print(e)
+    except IOError as e:
+        print(e)
+        print("Error when trying to communicate with front bumper. Is it plugged in?")

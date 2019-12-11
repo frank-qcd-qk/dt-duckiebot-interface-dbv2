@@ -56,5 +56,8 @@ class LineFollower:
 
 		return voltages, valid
 
+	def diagnostics(self):
+		return self.smbus.read_byte_data(I2C_ADDR, 8)
+
 	def __del__(self):
 		self.smbus.close()

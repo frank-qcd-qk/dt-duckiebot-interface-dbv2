@@ -3,7 +3,7 @@ import time
 
 import rospy
 from duckietown import DTROS
-from imu_driver import mpu9250
+from sensor_suite.imu_driver import mpu9250
 
 
 class IMUHandler(DTROS):
@@ -14,14 +14,13 @@ class IMUHandler(DTROS):
         self.current_state = True
 
         self.timer = rospy.Timer(rospy.Duration.from_sec(0.1), self.publish_data)
-        self.sensor = mpu9250()
+        self.sensor = mpu9250(2)
 
     def publish_data(self, event):
-        sensor = mpu9250()
         try:
-            a = sensor.accel
+            a = self.sensor.accel
             print('Accel: {:.3f} {:.3f} {:.3f} mg'.format(*a))
-            g = sensor.gyro
+            g = self.sensor.gyro
             print('Gyro: {:.3f} {:.3f} {:.3f} dps'.format(*g))
             # m = imu.mag
             # print 'Magnet: {:.3f} {:.3f} {:.3f} mT'.format(*m)

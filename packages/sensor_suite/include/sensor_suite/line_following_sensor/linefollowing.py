@@ -45,11 +45,11 @@ class LineFollower:
 		"""
 		raw_readings = self.smbus.read_i2c_block_data(I2C_ADDR, 0, 9)
 		voltages = LineDetection(*(
-			lsb + (msb << 8) 		 # Concatenate least significant byte and most significant byte
-			for lsb, msb 			 # for each lsb and msb
-			in zip(					 # Zip together each of...
-				raw_readings[0::2],  # Indexes (0, 2, 4, 6) (all least-significant bytes)
-				raw_readings[1::2]   # Indexes (1, 3, 5, 7) (all most-significant bytes)
+			(lsb + (msb << 8)) / 1000.0	 # Concatenate least significant byte and most significant byte, convert to V
+			for lsb, msb 			 	 # for each lsb and msb
+			in zip(					 	 # Zip together each of...
+				raw_readings[0::2],  	 # Indexes (0, 2, 4, 6) (all least-significant bytes)
+				raw_readings[1::2]   	 # Indexes (1, 3, 5, 7) (all most-significant bytes)
 			)
 		))
 		valid = raw_readings[8] == 0x00  # Diagnostic register is 0x00 iff all measurements are valid.

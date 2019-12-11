@@ -6,7 +6,7 @@ import rospy
 
 class LineFollowingNode(DTROS):
 
-    def __init__(self, node_name):
+    def __init__(self, node_name='line_following_node'):
         super(LineFollowingNode, self).__init__(node_name)
 
         self.line_follower = LineFollower()
@@ -23,5 +23,5 @@ class LineFollowingNode(DTROS):
 
 
 if __name__ == "__main__":
-    node = LineFollowingNode("line_following_node")
+    node = LineFollowingNode( )
     rospy.spin()

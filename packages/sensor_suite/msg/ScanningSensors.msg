@@ -1,0 +1,15 @@
+Header header
+bool state_front_bumper
+bool state_tof_fl
+bool state_tof_fm
+bool state_tof_fr
+bool state_tof_sl
+bool state_tof_sr
+bool state_tof_bl
+bool state_tof_bm
+bool state_tof_br
+bool state_imu
+bool state_lf_outer_left
+bool state_lf_outer_right
+bool state_lf_inner_left
+bool state_lf_inner_right

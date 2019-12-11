@@ -18,7 +18,7 @@ class IMUHandler(DTROS):
             self.sensor = mpu9250(1)
             _ = self.sensor.accel
             _ = self.sensor.gyro
-        except IOError as e:
+        except IOError:
             raise SensorNotFound("IMU sensor not detected")
 
         self.pub = rospy.Publisher('~imu', Imu, queue_size=10)

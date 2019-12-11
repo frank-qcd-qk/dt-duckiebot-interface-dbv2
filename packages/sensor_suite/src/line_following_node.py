@@ -8,6 +8,22 @@ import rospy
 
 
 class LineFollowingNode(DTROS):
+    """
+    Reads from the line following sensors on DBV2, and publishes a ROS topic.
+
+    When this node starts, it will check the ADC diagnostics to see if all of the line following sensors are plugged in.
+    If ANY are missing (showing any errors on the ADC diagnostics), then this node will shut itself down gracefully.
+
+    One important caveat: currently, the ADC diagnostics only reset at boot. So if you perform the following sequence:
+     - Boot up the duckiebot
+     - Plug in line following sensors
+     - Start this node
+    the ADC diagnostics will show an error (persistent from before the sensors were plugged in), and this node
+    will not start up.
+
+    If the sensors are plugged in but this node does not start up, try rebooting the HUT (completely remove it
+    from power) to clear the ADC errors.
+    """
 
     def __init__(self, node_name='line_following_node'):
         super(LineFollowingNode, self).__init__(node_name)

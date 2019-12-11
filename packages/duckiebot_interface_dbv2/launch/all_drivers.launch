@@ -16,6 +16,11 @@
         <arg name="robot_type" value="$(arg robot_type)"/>
     </include>
 
+    <!-- Sensor suite: Reads sensors and published ROS topics -->
+    <include file="$(find sensor_suite)/launch/all_sensors.launch">
+        <arg name="veh" value="$(arg veh)"/>
+    </include>
+
 
     <!-- Joystick: reads from a physical joystick and produces ROS messages -->
     <group if="$(eval arg('robot_type') == 'duckiebot')">
@@ -31,5 +36,7 @@
         </include>
 
    </group>
+
+
 
 </launch>

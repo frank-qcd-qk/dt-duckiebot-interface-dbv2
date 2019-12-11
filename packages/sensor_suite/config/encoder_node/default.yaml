@@ -1,0 +1,5 @@
+#default parameters for sensor_suite/encoder_node
+pin_encoder: 26
+radius: 0.022
+holes_per_round: 10.
+holes_per_calc: 6.

@@ -3,9 +3,11 @@ import time
 
 import rospy
 from duckietown import DTROS
-from duckietown_msgs.msg import Imu
+from sensor_msgs.msg import Imu
 from sensor_suite.imu_driver import mpu9250
 from sensor_suite import SensorNotFound
+
+G = 9.80665 # 1 G in m/s^2
 
 
 class IMUHandler(DTROS):
@@ -40,9 +42,14 @@ class IMUHandler(DTROS):
             msg.angular_velocity.x = g[0]
             msg.angular_velocity.y = g[1]
             msg.angular_velocity.z = g[2]
-            msg.linear_acceleration.x = a[0]
-            msg.linear_acceleration.y = a[1]
-            msg.linear_acceleration.z = a[2]
+            msg.linear_acceleration.x = a[0] * G
+            msg.linear_acceleration.y = a[1] * G
+            msg.linear_acceleration.z = a[2] * G
+            for i in range(0, 9):
+                msg.angular_velocity_covariance[i] = 0
+                msg.linear_acceleration_covariance[i] = 0
+                msg.orientation_covariance[i] = -1
+
             self.pub.publish(msg)
 
         except IOError as (errno, strerror):

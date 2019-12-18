@@ -27,6 +27,8 @@ class LineFollowingNode(DTROS):
 
     def __init__(self, node_name='line_following_node'):
         super(LineFollowingNode, self).__init__(node_name)
+        self.parameters['~polling_hz'] = None
+        self.updateParameters()
 
         self.line_follower = LineFollower()
 
@@ -36,7 +38,8 @@ class LineFollowingNode(DTROS):
                                  .format(self.line_follower.diagnostics()))
 
         self.pub = rospy.Publisher("~line_follower", LineFollowerStamped, queue_size=10)
-        self.timer = rospy.Timer(rospy.Duration.from_sec(0.1), self.publish_line_readings)
+        self.timer = rospy.Timer(rospy.Duration.from_sec(1.0 / self.parameters['~polling_hz']),
+                                 self.publish_line_readings)
 
     def publish_line_readings(self, event):
         voltages, valid = self.line_follower.read()

@@ -13,7 +13,8 @@ G = 9.80665 # 1 G in m/s^2
 class IMUHandler(DTROS):
     def __init__(self, node_name):
         super(IMUHandler, self).__init__(node_name=node_name)
-        # self.mux_port = mux_port
+        self.parameters['~polling_hz'] = None
+        self.updateParameters()
 
         self.current_state = True
         try:
@@ -25,7 +26,7 @@ class IMUHandler(DTROS):
 
         self.pub = rospy.Publisher('~imu', Imu, queue_size=10)
 
-        self.timer = rospy.Timer(rospy.Duration.from_sec(0.1), self.publish_data)
+        self.timer = rospy.Timer(rospy.Duration.from_sec(1.0 / self.parameters['~polling_hz']), self.publish_data)
 
     def publish_data(self, event):
         try:

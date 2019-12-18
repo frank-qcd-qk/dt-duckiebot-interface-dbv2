@@ -34,6 +34,9 @@ class ToFNode(DTROS):
 
     def __init__(self, node_name='tof_node'):
         super(ToFNode, self).__init__(node_name)
+        self.parameters['~polling_hz'] = None
+        self.updateParameters()
+
         self.smbus = smbus.SMBus(1)
 
         self.tofs = []
@@ -54,7 +57,7 @@ class ToFNode(DTROS):
         if len(self.tofs) == 0:
             raise SensorNotFound('No valid ToF sensors found')
 
-        self.timer = rospy.Timer(rospy.Duration.from_sec(0.1), self.read_distances)
+        self.timer = rospy.Timer(rospy.Duration.from_sec(1.0 / self.parameters['~polling_hz']), self.read_distances)
 
     def select_tof(self, index):
         """

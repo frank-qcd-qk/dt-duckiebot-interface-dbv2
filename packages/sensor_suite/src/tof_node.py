@@ -5,6 +5,8 @@ from sensor_suite.tof_driver import ToF
 from sensor_suite import SensorNotFound
 import rospy
 import smbus
+import yaml
+import os
 from collections import namedtuple
 
 MUX_ADDR = 0x70
@@ -34,7 +36,12 @@ class ToFNode(DTROS):
 
     def __init__(self, node_name='tof_node'):
         super(ToFNode, self).__init__(node_name)
+        self.veh_name = rospy.get_namespace().strip("/")
         self.parameters['~polling_hz'] = None
+        self.parameters['~m'] = None
+        self.parameters['~b'] = None
+
+        self.readParamFromFile()
         self.updateParameters()
 
         self.smbus = smbus.SMBus(1)
@@ -59,6 +66,55 @@ class ToFNode(DTROS):
 
         self.timer = rospy.Timer(rospy.Duration.from_sec(1.0 / self.parameters['~polling_hz']), self.read_distances)
 
+    def readParamFromFile(self):
+        """
+        Reads the saved parameters from `/data/config/calibrations/sensor_suite/tof/DUCKIEBOTNAME.yaml` or
+        uses the default values if the file doesn't exist. Adjsuts the ROS paramaters for the node
+        with the new values.
+
+        """
+        # Check file existence
+        fname = self.getFilePath(self.veh_name)
+        # Use the default values from the config folder if a robot-specific file does not exist.
+        if not os.path.isfile(fname):
+            self.log("Kinematics calibration file %s does not exist! Using the default values." % fname, type='warn')
+        else:
+            with open(fname, 'r') as in_file:
+                try:
+                    yaml_dict = yaml.load(in_file)
+                except yaml.YAMLError as exc:
+                    self.log("YAML syntax error. File: %s fname. Exc: %s" %(fname, exc), type='fatal')
+                    rospy.signal_shutdown()
+                    return
+
+            # Set parameters using value in yaml file
+            if yaml_dict is None:
+                # Empty yaml file
+                return
+            for param_name in ["m", "b"]:
+                param_value = yaml_dict.get(param_name)
+                if param_name is not None:
+                    rospy.set_param("~"+param_name, param_value)
+                else:
+                    # Skip if not defined, use default value instead.
+                    pass
+
+    def getFilePath(self, name):
+        """
+        Returns the path to the robot-specific configuration file,
+        i.e. `/data/config/calibrations/sensor_suite/tof/DUCKIEBOTNAME.yaml`.
+
+        Args:
+            name (:obj:`str`): the Duckiebot name
+
+        Returns:
+            :obj:`str`: the full path to the robot-specific calibration file
+
+        """
+        cali_file_folder = '/data/config/calibrations/sensor_suite/tof/'
+        cali_file = cali_file_folder + name + ".yaml"
+        return cali_file
+
     def select_tof(self, index):
         """
         Selects which port of the multiplexer is currently being used.
@@ -79,6 +135,7 @@ class ToFNode(DTROS):
             try:
                 self.select_tof(sensor.index)
                 error_code, distance, valid_pixels, confidence_value = sensor.tof.takeMeasurement()
+                distance = self.parameters['~m'][sensor.index] * distance + self.parameters['~b'][sensor.index]
             except IOError as e:
                 self.log("IOError when reading from ToF: {}".format(e))
                 error_code, distance, valid_pixels, confidence_value = 0x03, 0, 0, 0

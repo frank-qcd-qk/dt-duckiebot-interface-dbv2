@@ -2,6 +2,7 @@
 from duckietown import DTROS
 from sensor_suite.line_following_sensor import LineFollower
 from sensor_suite import SensorNotFound
+from sensor_suite.config import config_file
 from duckietown_msgs.msg import LineFollowerStamped
 from std_msgs.msg import Float32
 import rospy
@@ -27,9 +28,17 @@ class LineFollowingNode(DTROS):
 
     def __init__(self, node_name='line_following_node'):
         super(LineFollowingNode, self).__init__(node_name)
-        self.parameters['~polling_hz'] = None
-        self.updateParameters()
+        self.veh_name = rospy.get_namespace().strip("/")
+        self.file_path = '/data/config/calibrations/sensor_suite/line_follower/{}.yaml'.format(self.veh_name)
 
+        self.parameters['~polling_hz'] = None
+        self.parameters['~outer_right'] = None
+        self.parameters['~inner_right'] = None
+        self.parameters['~inner_left'] = None
+        self.parameters['~outer_left'] = None
+
+        config_file.read_calibration(self.file_path, self, ('outer_right', 'inner_right', 'inner_left', 'outer_left'))
+        self.updateParameters()
         self.line_follower = LineFollower()
 
         _, valid = self.line_follower.read()
@@ -45,11 +54,10 @@ class LineFollowingNode(DTROS):
         voltages, valid = self.line_follower.read()
         msg = LineFollowerStamped()
         msg.valid = valid
-        msg.outer_right = voltages.outer_right / 3.3
-        msg.inner_right = voltages.inner_right / 3.3
-        msg.inner_left = voltages.inner_left / 3.3
-        msg.outer_left = voltages.outer_left / 3.3
-
+        for sensor in ['outer_right', 'inner_right', 'inner_left', 'outer_left']:
+            val = self.parameters['~' + sensor]['m'] * getattr(voltages, sensor) / 3.3 \
+                  + self.parameters['~' + sensor]['b']
+            setattr(msg, sensor, min(max(val, 0), 1))
         self.pub.publish(msg)
 
 

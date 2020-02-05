@@ -3,14 +3,12 @@ from __future__ import print_function, division
 from builtins import input
 from duckietown import DTROS
 import rospy
-import os
 import sys
 import select
 import math
 import smbus
-import yaml
-import time
 from sensor_suite.tof_driver import ToF
+from sensor_suite.config import config_file
 
 
 NUM_MEASUREMENTS = 100
@@ -23,6 +21,7 @@ class ToFCalibrationNode(DTROS):
         super(ToFCalibrationNode, self).__init__(node_name)
 
         self.veh_name = rospy.get_namespace().strip("/")
+        self.file_path = '/data/config/calibrations/sensor_suite/tof/{}.yaml'.format(self.veh_name)
 
         self.m = [1.0] * 8
         self.b = [0.0] * 8
@@ -105,53 +104,12 @@ class ToFCalibrationNode(DTROS):
         """
         self.smbus.write_byte(MUX_ADDR, 1 << index)
 
-    def getFilePath(self, name):
-        """
-        Returns the path to the robot-specific configuration file,
-        i.e. `/data/config/calibrations/sensor_suite/tof/DUCKIEBOTNAME.yaml`.
-
-        Args:
-            name (:obj:`str`): the Duckiebot name
-
-        Returns:
-            :obj:`str`: the full path to the robot-specific calibration file
-
-        """
-        cali_file_folder = '/data/config/calibrations/sensor_suite/tof/'
-        cali_file = cali_file_folder + name + ".yaml"
-        return cali_file
-
-    def save_calibration(self):
-        """
-        Saves the current tof paramaters to a robot-specific file at
-        `/data/config/calibrations/sensor_suite/tof/DUCKIEBOTNAME.yaml`.
-
-        Returns:
-            EmptyResponse
-
-        """
-
-        # Write to a yaml file
-        self.updateParameters()
-        data = {
-            "calibration_time": time.strftime("%Y-%m-%d-%H-%M-%S"),
-            "m": self.m,
-            "b": self.b,
-        }
-
-        # Write to file
-        file_name = self.getFilePath(self.veh_name)
-        try:
-            os.makedirs(os.path.dirname(file_name))
-        except OSError:
-            # Probably means the directory already exists
-            pass
-        with open(file_name, 'w') as outfile:
-            outfile.write(yaml.dump(data, default_flow_style=False))
-
 
 if __name__ == "__main__":
     node = ToFCalibrationNode()
     for i in range(0, 8):
         node.calibrate(i)
-    node.save_calibration()
+    config_file.save_calibration(node.file_path, {
+        'm': node.m,
+        'b': node.b
+    })

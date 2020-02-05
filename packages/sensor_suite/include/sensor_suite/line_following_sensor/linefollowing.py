@@ -33,6 +33,9 @@ class LineFollower:
 
 	def __init__(self):
 		self.smbus = smbus.SMBus(I2C_BUS)
+		# The diagnostic bits on the ADC can sometimes be set briefly on boot. So, try to reset them now so that
+		# we will only detect errors that are fresh.
+		self.reset_diagnostics()
 
 	def read(self):
 		"""
@@ -58,6 +61,9 @@ class LineFollower:
 
 	def diagnostics(self):
 		return self.smbus.read_byte_data(I2C_ADDR, 8)
+
+	def reset_diagnostics(self):
+		self.smbus.write_byte_data(I2C_ADDR, 8, 0)
 
 	def __del__(self):
 		self.smbus.close()

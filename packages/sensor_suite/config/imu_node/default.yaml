@@ -1,3 +1,3 @@
 # TODO: Add parameters for IMU node
 
-polling_hz: 10
+polling_hz: 30

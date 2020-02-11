@@ -40,6 +40,7 @@ class IMUHandler(DTROS):
             # m = imu.temp
             # print 'Temperature: {:.3f} C'.format(m)
             msg = Imu()
+            msg.header.stamp = rospy.Time.now()
             msg.angular_velocity.x = g[0]
             msg.angular_velocity.y = g[1]
             msg.angular_velocity.z = g[2]

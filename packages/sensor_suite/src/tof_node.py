@@ -85,6 +85,7 @@ class ToFNode(DTROS):
         """
         for sensor in self.tofs:
             msg = ToFStamped()
+            msg.header.stamp = rospy.Time.now()
             try:
                 self.select_tof(sensor.index)
                 error_code, distance, valid_pixels, confidence_value = sensor.tof.takeMeasurement()

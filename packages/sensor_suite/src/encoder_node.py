@@ -57,12 +57,10 @@ class EncoderNode(DTROS):
     def edge_callback(self, gpio_pin, level, tick):
 
         if tick - self.last_tick > 1000:
-            print("Tick: {}, Last: {}, Diff: {}, Level: {}".format(tick, self.last_tick, tick - self.last_tick, level))
             self.last_tick = tick
             if level == 0:
                 with self.count_lock:
                     self.global_count += 1
-                print("Got a tick")
 
     def __del__(self):
         self.pigpio.stop()  # clean up GPIO on normal exit

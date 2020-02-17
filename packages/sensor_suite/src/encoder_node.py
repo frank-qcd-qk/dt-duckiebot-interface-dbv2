@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division
 import math
 import pigpio
 import rospy
@@ -40,7 +41,7 @@ class EncoderNode(DTROS):
         with self.count_lock:
             total_count = self.global_count
         now = rospy.get_time()
-        diff = total_count - self.last_published_count
+        diff = (total_count - self.last_published_count) / 2
         dt = now - self.last_published_time
         holes_velocity = diff / dt  # Velocity in holes per second
         velocity = (holes_velocity / self.parameters['~holes_per_round']) * 2 * math.pi * self.parameters['~radius']
@@ -48,7 +49,7 @@ class EncoderNode(DTROS):
         msg = EncoderStamped()
         msg.header.stamp = rospy.Time.now()
         msg.vel_encoder = velocity
-        msg.count = total_count
+        msg.count = total_count // 2
         self.pub_encoder_velocity.publish(msg)
 
         self.last_published_time = now
@@ -58,9 +59,8 @@ class EncoderNode(DTROS):
 
         if tick - self.last_tick > 1000:
             self.last_tick = tick
-            if level == 0:
-                with self.count_lock:
-                    self.global_count += 1
+            with self.count_lock:
+                self.global_count += 1
 
     def __del__(self):
         self.pigpio.stop()  # clean up GPIO on normal exit

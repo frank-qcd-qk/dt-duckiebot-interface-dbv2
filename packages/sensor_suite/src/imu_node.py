@@ -6,6 +6,7 @@ from duckietown import DTROS
 from sensor_msgs.msg import Imu
 from sensor_suite.imu_driver import mpu9250
 from sensor_suite import SensorNotFound
+from sensor_suite.config import config_file
 import math
 
 G = 9.80665  # 1 G in m/s^2
@@ -15,7 +16,14 @@ DEG2RAD = math.pi / 180
 class IMUHandler(DTROS):
     def __init__(self, node_name):
         super(IMUHandler, self).__init__(node_name=node_name)
+        self.veh_name = rospy.get_namespace().strip("/")
+        self.file_path = '/data/config/calibrations/sensor_suite/imu/{}.yaml'.format(self.veh_name)
+
         self.parameters['~polling_hz'] = None
+        self.parameters['~ang_vel_offset'] = None
+        self.parameters['~accel_offset'] = None
+
+        config_file.read_calibration(self.file_path, self, ['ang_vel_offset', 'accel_offset'])
         self.updateParameters()
 
         self.current_state = True
@@ -43,12 +51,12 @@ class IMUHandler(DTROS):
             # print 'Temperature: {:.3f} C'.format(m)
             msg = Imu()
             msg.header.stamp = rospy.Time.now()
-            msg.angular_velocity.x = g[0] * DEG2RAD
-            msg.angular_velocity.y = g[1] * DEG2RAD
-            msg.angular_velocity.z = g[2] * DEG2RAD
-            msg.linear_acceleration.x = a[0] * G
-            msg.linear_acceleration.y = a[1] * G
-            msg.linear_acceleration.z = a[2] * G
+            msg.angular_velocity.x = g[0] * DEG2RAD - self.parameters['~ang_vel_offset'][0]
+            msg.angular_velocity.y = g[1] * DEG2RAD - self.parameters['~ang_vel_offset'][1]
+            msg.angular_velocity.z = g[2] * DEG2RAD - self.parameters['~ang_vel_offset'][2]
+            msg.linear_acceleration.x = a[0] * G - self.parameters['~accel_offset'][0]
+            msg.linear_acceleration.y = a[1] * G - self.parameters['~accel_offset'][1]
+            msg.linear_acceleration.z = a[2] * G - self.parameters['~accel_offset'][2]
             for i in range(0, 9):
                 msg.angular_velocity_covariance[i] = 0
                 msg.linear_acceleration_covariance[i] = 0

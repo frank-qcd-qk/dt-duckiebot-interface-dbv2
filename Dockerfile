@@ -28,8 +28,8 @@ RUN apt-get update \
 
 #added pigpio library setup here
 WORKDIR /home/software/pigpio
-RUN wget abyz.me.uk/rpi/pigpio/pigpio.tar \
-    && tar xf pigpio.tar \
+RUN wget https://github.com/joan2937/pigpio/archive/master.zip \
+    && unzip master.zip \
     && cd PIGPIO \
     && make \
     && make install

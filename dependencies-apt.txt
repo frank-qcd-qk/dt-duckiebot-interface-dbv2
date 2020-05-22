@@ -1,3 +1,5 @@
 # LIST YOUR APT PACKAGES HERE
 wget
 nano
+vim
+unzip
